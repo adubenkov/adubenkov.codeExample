@@ -1,6 +1,6 @@
 # Code Style
 
-Common code review conventions for Swift iOS development. Adapted from production team standards.
+Common code review conventions for Swift iOS development. Adapted from team standards (anonymized).
 
 ## Swift
 

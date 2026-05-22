@@ -1,6 +1,6 @@
 # Deep Link Example
 
-Sanitized excerpt from production deep-link routing: protocol-driven entry contexts, attribution resolution, auth gating, and unit tests.
+Sanitized excerpt of deep link routing (anonymized): protocol-driven entry contexts, attribution resolution, auth gating, and unit tests.
 
 ## Run tests
 
