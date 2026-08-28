@@ -1,0 +1,13 @@
+# Категория PR по путям диффа — ПОЛ (первая совпавшая строка побеждает).
+# Формат: шаблон<TAB>категория (nonproduct|product|risky); семантика — .gitignore.
+# Несовпавший путь = product (консервативное умолчание). Суждение только повышает.
+.claude/**	risky
+.cursor/**	risky
+AGENTS.md	risky
+docs/TEAM.md	risky
+legacy/**	risky
+.github/workflows/**	nonproduct
+docs/**	nonproduct
+scripts/**	nonproduct
+*.md	nonproduct
+examples/**	product

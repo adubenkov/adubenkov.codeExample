@@ -88,3 +88,7 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+# глобальный git-ignore прячет docs/ и .claude/ — негируем (процесс dev-process)
+!docs/
+!.claude/
