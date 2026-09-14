@@ -1,0 +1,126 @@
+# gate — commit status по ВЕРДИКТУ РЕВЬЮ, а не по тестам.
+#
+# Эталон канона: dev-process/templates/gate.yml. Копия в проекте —
+# .github/workflows/gate.yml (GitHub требует ровно этот путь, docs/boundary.md);
+# расхождение по существу ловит `dev-process/bin/process-doctor`.
+#
+# ЧТО ДЕЛАЕТ. Читает комментарии PR, ищет ПОСЛЕДНИЙ вердикт `code-reviewer`,
+# привязанный к ВЕРШИНЕ ветки, и выставляет статус `gate`: APPROVE → success,
+# BLOCK → failure, вердикта на этот SHA нет → failure «ревью не проводилось».
+# Тестов здесь нет и не должно быть: тесты — отдельная джоба `ci`, она бежит на
+# КАЖДОМ PR и push в main, включая доковые (docs/TEAM.md, «Два имени»).
+#
+# ВЕРДИКТ АВТОРА НЕ СЧИТАЕТСЯ. Комментарии автора PR отбрасываются до разбора:
+# зелёный `gate` обязан означать «смотрел НЕ автор», иначе он не значит ничего.
+# Найдено инцидентом в проекте (решение PO 2026-09-09): роль поставила штамп на
+# собственном PR, и статус позеленел. Ставить вердикт вправе только ревьюер или
+# оркестратор (осознанное закрытие гейта с указанием правила).
+#
+# КОНТРАКТ ВЕРДИКТА (docs/TEAM.md, «Контракт вердиктов машиночитаем») — первые
+# ДВЕ строки комментария, целиком, без обрамления:
+#   GATE: APPROVE|BLOCK
+#   sha: <headRefOid>
+# Матч привязан к первой строке намеренно. Свободный `test("GATE: APPROVE")` по
+# всему телу зеленит статус на любом УПОМИНАНИИ якоря — например, в комментарии,
+# который цитирует этот контракт, или в BLOCK'е, объясняющем, чего не хватило
+# для APPROVE. Это дыра «тихий отказ»: merge без ревью при зелёном статусе.
+#
+# ПОЧЕМУ paths-ignore, а не paths. Непродуктовый PR вердикта не получает по
+# регламенту («Риск-ориентированный конвейер»), и джоба на нём не должна бежать
+# вовсе — иначе он вечно красный «нет вердикта». Список ниже — каноническая
+# граница непродуктового (та же, что у разрешённых прямых пушей в main). Проект
+# может сузить её своими путями, расширять — только вверх по риску.
+name: gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.claude/**'
+      - '.cursor/**'
+      - '.github/**'
+  # Новый комментарий пересчитывает статус без нового коммита. Триггер живёт
+  # только в ветке по умолчанию — отсюда самозагрузка через `gh run rerun`
+  # (docs/stack/github.md, «PR, вносящий сам gate.yml»).
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'Номер PR, для которого пересчитать статус gate'
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+# cancel-in-progress НЕ ставим: каждый вердикт обязан досчитаться до статуса,
+# иначе отменённый прогон оставит PR без следа ревью.
+concurrency:
+  group: gate-${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    name: gate
+    # issue_comment прилетает и на обычные issues — берём только PR.
+    if: github.event_name != 'issue_comment' || github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Проверить вердикт ревью и выставить статус
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number || github.event.issue.number || inputs.pr }}
+        run: |
+          set -euo pipefail
+
+          PR_JSON="$(gh api "repos/$REPO/pulls/$PR" --jq '.head.sha + " " + .user.login')"
+          HEAD_SHA="${PR_JSON%% *}"
+          PR_AUTHOR="${PR_JSON##* }"
+          echo "PR #$PR, вершина: $HEAD_SHA, автор: $PR_AUTHOR"
+
+          # Последний по времени вердикт на ЭТУ вершину: свежий BLOCK перебивает
+          # ранний APPROVE, поэтому tail -n 1, а не «есть хоть один APPROVE».
+          # shellcheck disable=SC2016  # $comment/$lines — переменные jq, не шелла
+          LAST="$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq --arg author "$PR_AUTHOR" '.[]
+                  | . as $comment
+                  | select($comment.user.login != $author)
+                  | ($comment.body | gsub("\r"; "") | split("\n")) as $lines
+                  | select(($lines | length) >= 2)
+                  | select($lines[0] | test("^GATE: (APPROVE|BLOCK)[ \t]*$"))
+                  | select(($lines[1] | ascii_downcase | gsub("[ \t]"; "")) == "sha:'"$HEAD_SHA"'")
+                  | (($lines[0] | sub("^GATE: "; "") | sub("[ \t]+$"; ""))
+                     + " " + $comment.html_url)' | tail -n 1)"
+
+          VERDICT="${LAST%% *}"
+          COMMENT_URL="${LAST#* }"
+          RUN_URL="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+          case "$VERDICT" in
+            APPROVE)
+              STATE=success
+              DESC="Ревью-гейт пройден"
+              TARGET="$COMMENT_URL"
+              ;;
+            BLOCK)
+              STATE=failure
+              DESC="Гейт заблокировал: см. комментарий ревьювера"
+              TARGET="$COMMENT_URL"
+              ;;
+            *)
+              STATE=failure
+              DESC="Нет чужого вердикта GATE для этого SHA — ревью не проводилось"
+              TARGET="$RUN_URL"
+              ;;
+          esac
+
+          echo "Статус: $STATE — $DESC ($TARGET)"
+          gh api -X POST "repos/$REPO/statuses/$HEAD_SHA" \
+            -f state="$STATE" -f context=gate -f description="$DESC" \
+            -f target_url="$TARGET" >/dev/null
