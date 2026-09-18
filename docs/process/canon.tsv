@@ -1,11 +1,13 @@
 # Откуда снята копия канона: путь<TAB>файл-канона<TAB>sha.
 # Ведёт bin/process-update — по этим sha считается трёхстороннее слияние.
 # Правится инструментом, руками только при осознанном сбросе базы.
-.github/workflows/gate.yml	templates/gate.yml	c1bed156ce14af1863979bef1f99687e7f46d343
+.github/workflows/gate.yml	templates/gate.yml	30925fc1452eaf8db912c91c23dac95335694e2a
 AGENTS.md	?	48ebfcc433dfb8845380bd7a1390288afec41b70
-bin/merge-green.sh	templates/merge-green.sh	c1bed156ce14af1863979bef1f99687e7f46d343
-docs/TEAM.md	docs/TEAM.md	c1bed156ce14af1863979bef1f99687e7f46d343
-docs/process/README.md	docs/observability.md	c1bed156ce14af1863979bef1f99687e7f46d343
-docs/process/RULES.md	docs/rules.md	c1bed156ce14af1863979bef1f99687e7f46d343
+bin/merge-green.sh	templates/merge-green.sh	30925fc1452eaf8db912c91c23dac95335694e2a
+docs/TEAM.md	docs/TEAM.md	30925fc1452eaf8db912c91c23dac95335694e2a
+docs/process/README.md	docs/observability.md	30925fc1452eaf8db912c91c23dac95335694e2a
+docs/process/RULES.md	docs/rules.md	30925fc1452eaf8db912c91c23dac95335694e2a
 docs/specs/BACKLOG.md	?	be64a07814300df207e4435e7da86cb617adb502
-docs/sprints/SPRINT-TEMPLATE.md	templates/SPRINT-TEMPLATE.md	c1bed156ce14af1863979bef1f99687e7f46d343
+docs/sprints/SPRINT-TEMPLATE.md	templates/SPRINT-TEMPLATE.md	30925fc1452eaf8db912c91c23dac95335694e2a
+docs/stack/github.md	stacks/github.md	30925fc1452eaf8db912c91c23dac95335694e2a
+docs/stack/swift-package.md	stacks/swift-package.md	30925fc1452eaf8db912c91c23dac95335694e2a
