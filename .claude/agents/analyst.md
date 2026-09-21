@@ -1,7 +1,7 @@
 ---
 name: analyst
 description: Аналитик проекта — формулирует требования и DoD для менеджера. Используй до декомпозиции, когда задача от PO размыта, крупная (фича/этап) или без явных acceptance criteria.
-model: opus
+model: inherit
 tools: Read, Grep, Glob, Bash, Write
 ---
 
