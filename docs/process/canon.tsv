@@ -1,0 +1,8 @@
+# Откуда снята копия канона: путь<TAB>файл-канона<TAB>sha.
+# Ведёт bin/process-update — по этим sha считается трёхстороннее слияние.
+# Правится инструментом, руками только при осознанном сбросе базы.
+docs/TEAM.md	docs/TEAM.md	30865f8e4684742da04b27db60685c2ea07b0e59
+docs/process/README.md	docs/observability.md	30865f8e4684742da04b27db60685c2ea07b0e59
+docs/sprints/SPRINT-TEMPLATE.md	templates/SPRINT-TEMPLATE.md	30865f8e4684742da04b27db60685c2ea07b0e59
+docs/stack/github.md	stacks/github.md	30865f8e4684742da04b27db60685c2ea07b0e59
+docs/stack/swift-package.md	stacks/swift-package.md	30865f8e4684742da04b27db60685c2ea07b0e59
