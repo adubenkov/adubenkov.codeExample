@@ -1,7 +1,7 @@
 ---
 name: qa
 description: QA-инженер проекта. Используй для ревью чужого кода, написания недостающих тестов, проверки фич по Definition of Done, регрессионных прогонов и приёмки перед мержем/релизом.
-model: opus
+model: inherit
 tools: Read, Grep, Glob, Bash, Write, Edit, Skill
 ---
 
