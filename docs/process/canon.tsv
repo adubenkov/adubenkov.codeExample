@@ -1,6 +1,9 @@
 # Откуда снята копия канона: путь<TAB>файл-канона<TAB>sha.
 # Ведёт bin/process-update — по этим sha считается трёхстороннее слияние.
 # Правится инструментом, руками только при осознанном сбросе базы.
+.claude/skills/test-audit/CAMPAIGN.md	skills/test-audit/CAMPAIGN.md	2bb81620d6e0fe88f84be5ff0c7a3e69bccc39aa
+.claude/skills/test-audit/NOTICE.md	skills/test-audit/NOTICE.md	2bb81620d6e0fe88f84be5ff0c7a3e69bccc39aa
+.claude/skills/test-audit/SKILL.md	skills/test-audit/SKILL.md	2bb81620d6e0fe88f84be5ff0c7a3e69bccc39aa
 .github/workflows/gate.yml	templates/gate.yml	30925fc1452eaf8db912c91c23dac95335694e2a
 AGENTS.md	?	48ebfcc433dfb8845380bd7a1390288afec41b70
 bin/merge-green.sh	templates/merge-green.sh	30925fc1452eaf8db912c91c23dac95335694e2a
